@@ -1,0 +1,180 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 31e0677381a244baaa8bb455c37e0e20
+      template: SMART_NZ
+      name: SMART_NZ
+      groups:
+        - name: Templates
+      items:
+        - uuid: 553bebf77db144f5ac64910cc643b45f
+          name: 'Package jq'
+          key: 'package.check[jq]'
+          trends: '0'
+          triggers:
+            - uuid: a6fba679e53c4bc39edb176ac9d6ae06
+              expression: 'last(/SMART_NZ/package.check[jq])<>1'
+              name: 'Package ''jq'' was not found'
+              priority: INFO
+              description: 'Package ''smartmontools'' needs for discovery scripts'
+        - uuid: f7d02d4e74f94530b3a7e83c214d7a3d
+          name: 'Package smartmontools'
+          key: 'package.check[smartmontools]'
+          trends: '0'
+          triggers:
+            - uuid: 51b1c3280e4f4f8a840a2e7e5d768081
+              expression: 'last(/SMART_NZ/package.check[smartmontools])<>1'
+              name: 'Package ''smartmontools'' was not found'
+              priority: INFO
+              description: 'Package ''smartmontools'' needs for discovery scripts'
+      discovery_rules:
+        - uuid: 16f309690f7243e18eca9ab5521e0c48
+          name: 'NVMe Disks'
+          key: discovery.disks.nvme
+          delay: '{$DISKS_DISCOVERY_INTERVAL}'
+          item_prototypes:
+            - uuid: d51eb18840024c5f97877d8964a48e93
+              name: '{#NVME_DISK} critical warning'
+              key: 'nz_smart[{#NVME_DISK},critical_warning]'
+              delay: 15m
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: c185426935c0494eb2e79f65ac2b8716
+                  expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},critical_warning])<>0'
+                  name: '{#NVME_DISK} critical warning'
+                  priority: HIGH
+            - uuid: e2f13ddc508a478896095c0069e09047
+              name: '{#NVME_DISK} media errors'
+              key: 'nz_smart[{#NVME_DISK},media_errors]'
+              delay: 15m
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: 340c857d73a6440694d3386bc97b7b6f
+                  expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},media_errors])<>0'
+                  name: '{#NVME_DISK} media errors'
+                  priority: HIGH
+            - uuid: 29b7cc4e68464228a9e48b0d13aab0f9
+              name: '{#NVME_DISK} num_err_log_entries'
+              key: 'nz_smart[{#NVME_DISK},num_err_log_entries]'
+              delay: 30m
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+            - uuid: 773a899341324c1cbc265b7006d2d6c3
+              name: '{#NVME_DISK} percentage used'
+              key: 'nz_smart[{#NVME_DISK},percentage_used]'
+              delay: 15m
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: b6a8107b6cb04ac6b0a0348378cd0f94
+                  expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},percentage_used])>=70'
+                  name: '{#NVME_DISK} percentage used is too high'
+                  priority: HIGH
+            - uuid: 72901a56f7d9435ea39a3e4302e057fe
+              name: '{#NVME_DISK} S.M.A.R.T. status'
+              key: 'nz_smart[{#NVME_DISK},smart_status]'
+              delay: 15m
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: 2ea925b29e5d49688370347246d6260b
+                  expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},smart_status])<>1'
+                  name: '{#NVME_DISK} S.M.A.R.T. status is bad'
+                  priority: HIGH
+            - uuid: f0fd2eaf93784cc9917da8acc1e98227
+              name: '{#NVME_DISK} Temperature'
+              key: 'nz_smart[{#NVME_DISK},temperature]'
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: 418b0640c5e04b599376a2cc82ce65a6
+                  expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},temperature])>=50'
+                  name: '{#NVME_DISK} Temperature is too high'
+                  priority: AVERAGE
+            - uuid: 420b18cb197d468699f021695b928666
+              name: '{#NVME_DISK} unsafe shutdowns'
+              key: 'nz_smart[{#NVME_DISK},unsafe_shutdowns]'
+              delay: 15m
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: 2c80d02ce2294e92a5d8584c04e96800
+                  expression: 'change(/SMART_NZ/nz_smart[{#NVME_DISK},unsafe_shutdowns])>0'
+                  name: '{#NVME_DISK} unsafe shutdowns counter increased'
+                  priority: AVERAGE
+                  manual_close: 'YES'
+        - uuid: 0582bab49ee048d6bca8a7f11d73e888
+          name: 'SAS DISKS'
+          key: discovery.disks.sas
+          delay: '{$DISKS_DISCOVERY_INTERVAL}'
+          item_prototypes:
+            - uuid: c5190345595c4b20a0f2c9147f6a8a14
+              name: '{#SAS_DISK} read_errors'
+              key: 'nz_smart[{#SAS_DISK},read_errors]'
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: e80707d3e9ae4c268f65654b34897efd
+                  expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},read_errors])>0'
+                  name: '{#SAS_DISK} has uncorrected read errors!'
+                  priority: AVERAGE
+            - uuid: 998056d1e70f4e4b8ad7f4f916628a11
+              name: '{#SAS_DISK} S.M.A.R.T. status'
+              key: 'nz_smart[{#SAS_DISK},smart_status]'
+              value_type: FLOAT
+              trends: '0'
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: 695b1a60603d4961a0f37140a0746a38
+                  expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},smart_status])<>1'
+                  name: '{#SAS_DISK} S.M.A.R.T. status is not okay'
+                  priority: HIGH
+            - uuid: 139b2babbc954cb3b0b3bd2ed9cfdd10
+              name: '{#SAS_DISK} temperature'
+              key: 'nz_smart[{#SAS_DISK},temperature]'
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: c21e10fae2914d45bf9788871fc5aa7c
+                  expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},temperature])>=50'
+                  name: '{#SAS_DISK} temperature is too high'
+                  priority: AVERAGE
+            - uuid: ffa48499835744129a7538fab654b4ab
+              name: '{#SAS_DISK} write_errors'
+              key: 'nz_smart[{#SAS_DISK},write_errors]'
+              value_type: FLOAT
+              tags:
+                - tag: HEALTH
+                  value: SMART
+              trigger_prototypes:
+                - uuid: 4902702433f642fab97d639d6988ed62
+                  expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},write_errors])>0'
+                  name: '{#SAS_DISK} has uncorrected write errors!'
+                  priority: AVERAGE
+      macros:
+        - macro: '{$DISKS_DISCOVERY_INTERVAL}'
+          value: 15m
