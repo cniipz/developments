@@ -67,6 +67,33 @@ def get_model_name(data):
     return data.get("model_name", "unknown")
 
 
+def handle_errors(return_code):
+    result = {
+            "raw_return_code": return_code,
+            "flags": []
+            }
+ 
+    flags = {
+            1: "command line parser error",
+            2: "device open failed",
+            4: "SMART status indicates failure",
+            8: "some prefail attributes out of threshold",
+            16: "one or more attributes changed",
+            32: "some logging errors",
+            64: "self-test errors detected",
+            128: "bad drive or driver"
+            }
+
+    for bit, desc in flags.items():
+        if return_code & bit:
+            result["flags"].append({
+                    "bit": bit,
+                    "description": desc
+                    })
+
+    return json.dumps(result, indent=2)
+    
+
 def main():
 
     if len(sys.argv) != 3:
@@ -93,14 +120,20 @@ def main():
     cmd = ["sudo", "/usr/sbin/smartctl", "-aj", f"{device}"]
 
     if metric.lower() not in METRICS:
-        print(-2)
+        print({'error': f'unsupported metric: {metric}' })
         sys.exit(1)
 
     try:
-        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, text=True)
-        data = json.loads(output)
+        sp = subprocess.run(cmd, capture_output=True, text=True)
+        data = json.loads(sp.stdout)
+        return_code = sp.returncode
+
+        if return_code != 0:
+            print(handle_errors(return_code))
+            sys.exit(return_code)
+
     except Exception as e:
-        print(-10)
+        print(e)
         sys.exit(1)
 
     value = METRICS[metric](data)
