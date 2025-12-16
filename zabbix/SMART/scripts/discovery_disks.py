@@ -39,6 +39,7 @@ HEADERS = {
 devices = sp_grep.stdout.strip().split('\n')
 result = {'data': []}
 
+devices = [device for device in devices if device]
 # Фильтрация дисков, не поддерживающих S.M.A.R.T.
 # Формирование json файла для отправки в zabbix
 for device in devices:
