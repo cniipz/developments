@@ -11,7 +11,7 @@ zabbix_export:
         - name: Templates
       items:
         - uuid: 553bebf77db144f5ac64910cc643b45f
-          name: 'Package jq'
+          name: 'Package [jq]'
           key: 'package.check[jq]'
           trends: '0'
           triggers:
@@ -19,9 +19,9 @@ zabbix_export:
               expression: 'last(/SMART_NZ/package.check[jq])<>1'
               name: 'Package ''jq'' was not found'
               priority: INFO
-              description: 'Package ''smartmontools'' needs for discovery scripts'
+              description: 'Package ''jq'' needs for discovery scripts'
         - uuid: f7d02d4e74f94530b3a7e83c214d7a3d
-          name: 'Package smartmontools'
+          name: 'Package [smartmontools]'
           key: 'package.check[smartmontools]'
           trends: '0'
           triggers:
@@ -30,6 +30,16 @@ zabbix_export:
               name: 'Package ''smartmontools'' was not found'
               priority: INFO
               description: 'Package ''smartmontools'' needs for discovery scripts'
+        - uuid: e8ae238eac7f44d3b276424ec8582e65
+          name: 'Package [sudo]'
+          key: 'package.check[sudo]'
+          trends: '0'
+          triggers:
+            - uuid: ce3b5e88319a4249822c1a26ee990a39
+              expression: 'last(/SMART_NZ/package.check[sudo])<>1'
+              name: 'Package ''sudo'' was not found'
+              priority: INFO
+              description: 'Package ''sudo'' needs for discovery scripts'
       discovery_rules:
         - uuid: 16f309690f7243e18eca9ab5521e0c48
           name: 'NVMe Disks'
@@ -48,6 +58,7 @@ zabbix_export:
                 - uuid: c185426935c0494eb2e79f65ac2b8716
                   expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},critical_warning])<>0'
                   name: '{#NVME_DISK} critical warning'
+                  event_name: '{#NVME_DISK} critical warning. (Counter: {ITEM_VALUE})'
                   priority: HIGH
             - uuid: e2f13ddc508a478896095c0069e09047
               name: '{#NVME_DISK} media errors'
@@ -61,6 +72,7 @@ zabbix_export:
                 - uuid: 340c857d73a6440694d3386bc97b7b6f
                   expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},media_errors])<>0'
                   name: '{#NVME_DISK} media errors'
+                  event_name: '{#NVME_DISK} media errors. (Counter: {ITEM_VALUE})'
                   priority: HIGH
             - uuid: 29b7cc4e68464228a9e48b0d13aab0f9
               name: '{#NVME_DISK} num_err_log_entries'
@@ -82,6 +94,7 @@ zabbix_export:
                 - uuid: b6a8107b6cb04ac6b0a0348378cd0f94
                   expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},percentage_used])>=70'
                   name: '{#NVME_DISK} percentage used is too high'
+                  event_name: '{#NVME_DISK} percentage used is too high. (Counter: {ITEM_VALUE})'
                   priority: HIGH
             - uuid: 72901a56f7d9435ea39a3e4302e057fe
               name: '{#NVME_DISK} S.M.A.R.T. status'
@@ -100,6 +113,7 @@ zabbix_export:
               name: '{#NVME_DISK} Temperature'
               key: 'nz_smart[{#NVME_DISK},temperature]'
               value_type: FLOAT
+              units: °C
               tags:
                 - tag: HEALTH
                   value: SMART
@@ -107,6 +121,7 @@ zabbix_export:
                 - uuid: 418b0640c5e04b599376a2cc82ce65a6
                   expression: 'last(/SMART_NZ/nz_smart[{#NVME_DISK},temperature])>=50'
                   name: '{#NVME_DISK} Temperature is too high'
+                  event_name: '{#NVME_DISK} Temperature is too high. (Counter: {ITEM_VALUE})'
                   priority: AVERAGE
             - uuid: 420b18cb197d468699f021695b928666
               name: '{#NVME_DISK} unsafe shutdowns'
@@ -123,7 +138,7 @@ zabbix_export:
                   priority: AVERAGE
                   manual_close: 'YES'
         - uuid: 0582bab49ee048d6bca8a7f11d73e888
-          name: 'SAS DISKS'
+          name: 'SAS Disks'
           key: 'discovery.disks[sas]'
           delay: '{$DISKS_DISCOVERY_INTERVAL}'
           item_prototypes:
@@ -138,6 +153,7 @@ zabbix_export:
                 - uuid: e80707d3e9ae4c268f65654b34897efd
                   expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},read_errors])>0'
                   name: '{#SAS_DISK} has uncorrected read errors!'
+                  event_name: '{#SAS_DISK} has uncorrected read errors! (counter: {ITEM_VALUE})'
                   priority: AVERAGE
             - uuid: 998056d1e70f4e4b8ad7f4f916628a11
               name: '{#SAS_DISK} S.M.A.R.T. status'
@@ -150,19 +166,21 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: 695b1a60603d4961a0f37140a0746a38
                   expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},smart_status])<>1'
-                  name: '{#SAS_DISK} S.M.A.R.T. status is not okay'
+                  name: '{#SAS_DISK} S.M.A.R.T. status is bad'
                   priority: HIGH
             - uuid: 139b2babbc954cb3b0b3bd2ed9cfdd10
               name: '{#SAS_DISK} temperature'
               key: 'nz_smart[{#SAS_DISK},temperature]'
               value_type: FLOAT
+              units: °C
               tags:
                 - tag: HEALTH
                   value: SMART
               trigger_prototypes:
                 - uuid: c21e10fae2914d45bf9788871fc5aa7c
-                  expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},temperature])>=50'
+                  expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},temperature])>=45'
                   name: '{#SAS_DISK} temperature is too high'
+                  event_name: '{#SAS_DISK} temperature is too high ({ITEM.VALUE})'
                   priority: AVERAGE
             - uuid: ffa48499835744129a7538fab654b4ab
               name: '{#SAS_DISK} write_errors'
@@ -175,7 +193,58 @@ zabbix_export:
                 - uuid: 4902702433f642fab97d639d6988ed62
                   expression: 'last(/SMART_NZ/nz_smart[{#SAS_DISK},write_errors])>0'
                   name: '{#SAS_DISK} has uncorrected write errors!'
+                  event_name: '{#SAS_DISK} has uncorrected write errors! (counte: {ITEM_VALUE})'
                   priority: AVERAGE
+        - uuid: faa46f31b71d411a94743c385a89f68c
+          name: 'SATA Disks'
+          key: 'discovery.disks[sata]'
+          delay: '{$DISKS_DISCOVERY_INTERVAL}'
+          item_prototypes:
+            - uuid: 0c20194d71b949be9f84bf167a4343b3
+              name: '{#SATA_DISK} Current Pending Sector'
+              key: 'nz_smart[{#SATA_DISK},ata_pending]'
+              delay: 10m
+              value_type: FLOAT
+              trigger_prototypes:
+                - uuid: a50baaaa4a964e22a2b77f6c4466668e
+                  expression: 'last(/SMART_NZ/nz_smart[{#SATA_DISK},ata_pending])>0'
+                  name: '{#SATA_DISK} find pending sectors'
+                  event_name: '{#SATA_DISK} find pending sectors ({ITEM_VALUE})'
+                  priority: AVERAGE
+            - uuid: c98df1b4824346d4b51965320575b92e
+              name: '{#SATA_DISK} Reallocated Sector Ct'
+              key: 'nz_smart[{#SATA_DISK},ata_reallocated]'
+              delay: 10m
+              value_type: FLOAT
+              trigger_prototypes:
+                - uuid: 2b205a9167864711bb7a3fbcacf5252c
+                  expression: 'last(/SMART_NZ/nz_smart[{#SATA_DISK},ata_reallocated])>0'
+                  name: '{#SATA_DISK} find reallocated sectors'
+                  event_name: '{#SATA_DISK} find reallocated sectors ({ITEM_VALUE})'
+                  priority: AVERAGE
+            - uuid: 9ad9fe3650d94006a5dc7496c558c8b2
+              name: '{#SATA_DISK} Temperature'
+              key: 'nz_smart[{#SATA_DISK},ata_temperature]'
+              delay: 15s
+              value_type: FLOAT
+              units: °C
+              trigger_prototypes:
+                - uuid: ecadc6cd569b422f8192f8a6d1ebd0bc
+                  expression: 'last(/SMART_NZ/nz_smart[{#SATA_DISK},ata_temperature])>45'
+                  name: '{#SATA_DISK} temperature is too high!'
+                  event_name: '{#SATA_DISK} temperature is too high! ({ITEM_VALUE})'
+                  priority: AVERAGE
+            - uuid: cca7c3d6e42d43dab91c8321419a23f4
+              name: '{#SATA_DISK} Offline Uncorrectable'
+              key: 'nz_smart[{#SATA_DISK},ata_uncorrectable]'
+              delay: 5m
+              value_type: FLOAT
+              trigger_prototypes:
+                - uuid: 8d6bdd97d66b4c7eb7dcc61bd67e00db
+                  expression: 'last(/SMART_NZ/nz_smart[{#SATA_DISK},ata_uncorrectable])>0'
+                  name: '{#SATA_DISK} find offline uncorrectable sectors'
+                  event_name: '{#SATA_DISK} find offline uncorrectable sectors ({ITEM_VALUE})'
+                  priority: HIGH
       macros:
         - macro: '{$DISKS_DISCOVERY_INTERVAL}'
           value: 15m
