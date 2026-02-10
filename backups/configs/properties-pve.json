@@ -1,0 +1,17 @@
+{
+  "VM": {
+    <VM-ID>: {
+      "name": <VM-NAME>
+    }
+  },
+   
+  "STORAGES": {
+    <STORAGE (for report mapping)>: {
+      "node": <PVE-NODE-NAME>,
+      "address": <PVE-ADDRESS>,
+      "port": <PVE-PORT>,
+      "storage": <PVE-STORAGE-NAME>
+    }
+  }
+}
+

@@ -1,0 +1,8 @@
+{
+  "repositories": {    
+      <REPO-NAME>: {   
+        "archives": [<ARCHIVES>],  
+        "path": <PATH TO REPOSITORY> 
+      }
+    }
+}
