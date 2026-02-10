@@ -6,17 +6,22 @@
 ![схема](./screenshots/schema.png)
 
 ## Скрипты и конфиги
-![Проверка архивов borg](./scripts/check-borg-archives.py)
-![Конфиг](./configs/borg-repositories.json)
+[Проверка архивов borg](./scripts/check-borg-archives.py)
+
+[Конфиг](./configs/borg-repositories.json)
+
     В конфиг можно добавить свои репозитории и архивы для проверки.
     После добавления в конфиг они будут автоматически добавлены в отчёт.
 
-![Проверка бекапов ВМ через PVE](./scripts/check-pve-backups.py)
-![Конфиг](/configs/properties-pve.json)
+[Проверка бекапов ВМ через PVE](./scripts/check-pve-backups.py)
+
+[Конфиг](./configs/properties-pve.json)
+
     В конфиг можно добавить свои ВМ и storage, в которых скрипт будет искать бекапы
     После добавления в конфиг они будут автоматически добавлены в отчёт
 
-![Формирование и отправка отчётов](/scripts/backups-notif.py)
+[Формирование и отправка отчётов](/scripts/backups-notif.py)
+
     В текущей версии конфига нет. Отправка реализована только в телеграмм. Можно реализовать отправку куда угодно, если есть желание
 
 
