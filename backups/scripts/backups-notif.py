@@ -3,6 +3,7 @@ import json
 import requests
 import matplotlib.pyplot as plt
 import io
+import base64
 from datetime import datetime
 
 REDIS_ADDRESS = ""
@@ -10,20 +11,31 @@ REDIS_PORT = ""
 REDIS_PASSWORD = ""
 
 r = redis.Redis(host=REDIS_ADDRESS, port=REDIS_PORT, password=REDIS_PASSWORD, decode_responses=True)
+
 pubsub = r.pubsub()
 pubsub.subscribe('backups_borg')
 pubsub.subscribe('backups_pve_all')
 pubsub.subscribe('backups_pve_last')
 
-TELEGRAM_TOKEN = ""
-CHAT_ID = ""
+TELEGRAM_TOKEN = "" # ТЕЛЕГРАМ ТОКЕН БОТА
+TELEGRAM_URL_TEXT = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage" 
+TELEGRAM_URL_MEDIA = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMediaGroup"
+TELEGRAM_CHAT_ID = ""
 
+
+BITRIX_CHAT_ID = ""
+BITRIX_URL_GET_FOLDER = "https://<АДРЕС БИТРИКСА>/rest/<ID ЮЗЕРА>/<ВЕБХУК>/im.disk.folder.get"
+BITRIX_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
+BITRIX_PAYLOAD_CHAT_ID = {"CHAT_ID": f"{BITRIX_CHAT_ID}"}
+
+BITRIX_URL_FOLDER_UPLOADFILE = "https://<АДРЕС БИТРИКСА>/rest/<ID ЮЗЕРА>/<ВЕБХУК>/disk.folder.uploadfile"
+BITRIX_URL_FILE_COMMIT = "https://<АДРЕС БИТРИКСА>/rest/<ID ЮЗЕРА>/<ВЕБХУК>/im.disk.file.commit"
 
 def send_text_to_telegram(message):
     requests.post(
-        f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
-        json={"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
-    )
+            TELEGRAM_URL_TEXT,
+            json={"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"}
+            )
 
 def send_photos_to_telegram(caption, photos):
 
@@ -41,10 +53,67 @@ def send_photos_to_telegram(caption, photos):
             })
 
     requests.post(
-            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMediaGroup",
-            data={'chat_id': CHAT_ID, 'media': json.dumps(media)},
+            TELEGRAM_URL_MEDIA,
+            data={'chat_id': TELEGRAM_CHAT_ID, 'media': json.dumps(media)},
             files=files
             )
+
+def bytesToBase64(_bytes):
+    return base64.b64encode(_bytes).decode('utf-8')
+
+def send_photos_to_bitrix(caption, photos):
+    response_folder = requests.post(
+            BITRIX_URL_GET_FOLDER,
+            headers=BITRIX_HEADERS,
+            json=BITRIX_PAYLOAD_CHAT_ID
+            )
+
+    folder_data = response_folder.json()
+    folder_id = folder_data.get("result", {}).get("ID", -1)
+
+    b64photos = []
+    for photo in photos:
+        b64photo = bytesToBase64(photo.getvalue())
+        b64photos.append(b64photo)
+
+    uploaded_files_id = []
+
+    def upload_file(name, file):
+        filename = f"{name}.png"
+
+        _data = {
+                "id": folder_id,
+                "data": {
+                    "NAME": filename,
+                    },
+                "fileContent": [filename, file], 
+                "generateUniqueName": True
+                }
+
+        response = requests.post(
+                BITRIX_URL_FOLDER_UPLOADFILE,
+                headers = BITRIX_HEADERS,
+                json = _data
+                )
+
+        upload_data = response.json()
+        uploaded_files_id.append(upload_data.get("result", {}).get("ID", -1))
+
+    for photo in b64photos:
+        upload_file(caption, photo)
+        
+    
+    for file_id in uploaded_files_id:
+        _data = {
+                "CHAT_ID": f"{BITRIX_CHAT_ID}",
+                "UPLOAD_ID": f"{file_id}",
+                "MESSAGE": f"{caption}"
+                }
+        
+        response = requests.post(
+                BITRIX_URL_FILE_COMMIT,
+                data = _data
+                )
 
 def format_borg(data):
     images = []
@@ -172,8 +241,10 @@ def format_pve_last(data):
 
     return images
  
-def send(data):
-    send_to_telegram(data)
+def send(caption, data):
+    send_photos_to_bitrix(caption, data)
+    send_photos_to_telegram(caption, data)
+
 
 for message in pubsub.listen():
     if message['type'] != 'message':
@@ -194,4 +265,4 @@ for message in pubsub.listen():
             caption += "Вируальные машины"
 
 
-    send_photos_to_telegram(caption, data)
+    send(caption, data)
