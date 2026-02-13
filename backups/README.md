@@ -5,7 +5,7 @@
 ## Схема
 ![схема](./screenshots/schema.png)
 
-## Скрипты
+## Скрипты и конфиги
 [Проверка архивов borg](./scripts/check-borg-archives.py)
 
 [Конфиг](./configs/borg-repositories.json)
@@ -32,3 +32,8 @@
 ### Redis-server
 
 ### API токен и права на PVE (через shell `pveum acl`)
+
+## Восстановление работы
+На Redis-сервере крутится сервис backup-notif.service
+вся работы по восстановлению - `systemctl restart backup-notif.service`
+В случае, если вы модифицировали скрипт, то читайте логи
