@@ -6,10 +6,10 @@
 [Скрипты](##Скрипты)
 ---
 
-##Схема
+## Схема
 ![схема](./screenshots/schema.png)
 
-##Скрипты
+## Скрипты
 [Проверка архивов borg](./scripts/check-borg-archives.py)
 
 [Конфиг](./configs/borg-repositories.json)
