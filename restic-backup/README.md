@@ -19,17 +19,17 @@ Match User <username> # Имя пользователя. Можно так же 
 Так же проверяем, чтоб в файле `etc/ssh/sshd_config` присутсовала строка `Include etc/ssh/sshd_config.d/*.conf`  
 2. **Настройка SFTP-директории**  
 Для примера будет директория в корне системы - `/share/sftp/backup`  
-Для `/share/sftp/`: (Она будет корнем для клиента)  
-    ```bash
-    chown root:root /share /share/sftp
-    chmod 0755 /share /share/sftp
-    ```
+Для `/share/sftp/`: (Она будет корнем для клиента)
+```bash
+ chown root:root /share /share/sftp
+ chmod 0755 /share /share/sftp
+```
     
 Для `/share/sftp/backup/`:  (Делаем writable директорию)
-    ```bash
-    chown <user>:<user_hroup> /share/sftp/backup
-    chmod 0755 /share/sftp/backup
-    ```
+```bash
+chown <user>:<user_hroup> /share/sftp/backup
+chmod 0755 /share/sftp/backup
+```
     
 3. **Настройка пользователя**  
 Вставляем содержимое публичного ключа в файл
