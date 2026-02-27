@@ -20,15 +20,27 @@ Match User <username> # Имя пользователя. Можно так же 
 2. **Настройка SFTP-директории**  
 Для примера будет директория в корне системы - `/share/sftp/backup`  
 Для `/share/sftp/`: (Она будет корнем для клиента)  
-    `chown root:root /share /share/sftp`  
-    `chmod 0755 /share /share/sftp`  
+    ```bash
+    chown root:root /share /share/sftp
+    chmod 0755 /share /share/sftp
+    ```
+    
 Для `/share/sftp/backup/`:  (Делаем writable директорию)
-    `chown <user>:<user_hroup> /share/sftp/backup`  
-    `chmod 0755 /share/sftp/backup`  
+    ```bash
+    chown <user>:<user_hroup> /share/sftp/backup
+    chmod 0755 /share/sftp/backup
+    ```
+    
 3. **Настройка пользователя**  
-Вставляем содержимое публичного ключа в файл - `/home/<username>/.ssh/authorized_keys`
+Вставляем содержимое публичного ключа в файл
+```bash
+/home/<username>/.ssh/authorized_keys
+```
 
-В самом конце - `sudo systemctl restart sshd`
+В самом конце 
+```bash
+sudo systemctl restart sshd
+```
 
 ## Подготовка Windows хоста
 
