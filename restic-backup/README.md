@@ -34,7 +34,7 @@ Match User <username> # Имя пользователя. Можно так же 
 
 1. **Создание SSH-ключа**  
 
-```powershell
+```PowerShell
 # restic это имя файла ключа, а -C - комментарий
 ssh-keygen -t edd25519 -f "$env:USERPROFILE\.ssh\restic" -C "restic-backup" 
 ```
@@ -58,8 +58,13 @@ Host <name> # Имя Linux хоста
 ## Бекап
 
 1. **Инициализируем репозиторий**  
-`.\restic.exe -r "sftp:<username>@<hostname>:/backup/" --password-file=.\pass.txt init`  
+```PowerShell
+.\restic.exe -r "sftp:<username>@<hostname>:/backup/" --password-file=.\pass.txt init
+```
+  
 pass.txt - файл с паролем для репозитория. Без пробелов и отступов. Не потеряйте его!  
 
-2. **Делаем бекап**  
-`.\restic.exe -r "sftp:<username>@<hostname>:/backup/" backup <Путь до директории, которую хотим забекапить>`  
+3. **Делаем бекап**  
+```PowerShell
+.\restic.exe -r "sftp:<username>@<hostname>:/backup/" backup <Путь до директории, которую хотим забекапить>
+```
